@@ -1,3 +1,4 @@
+import storage from "../middleware/cloudinary.js";
 import Product from "../model/Product.js";
 import {
   generateDesc,
@@ -50,7 +51,12 @@ export const createProduct = async (req, res) => {
 
     // 🔥 Single product
     let { name, desc, brand, price, discountPrice, images, stock } = req.body;
+    const safeImages = images?.filter((img) => img?.url?.trim()) ?? [];
 
+    // 🔥 auto generate if desc missing
+    if (!desc || desc.trim() === "") {
+      desc = await generateDesc(name, brand);
+    }
     if (!name || !price) {
       return res.status(400).json({
         success: false,
@@ -61,16 +67,12 @@ export const createProduct = async (req, res) => {
     // 🔥 generate embedding
     let embedding = [];
 
-    if (images && images[0]?.url) {
-      console.log("📥 Fetching image for embedding...");
-
+    if (images && images[0]?.url && images[0].url.startsWith("http")) {
+      // ✅ only fetch if it's a real URL (Cloudinary), not a local path
       const response = await axios.get(images[0].url, {
         responseType: "arraybuffer",
       });
-
       embedding = await getEmbeddingFromBuffer(response.data);
-
-      console.log("🧠 Embedding generated:", embedding.length);
     }
 
     const product = await Product.create({
@@ -79,7 +81,7 @@ export const createProduct = async (req, res) => {
       brand,
       price,
       discountPrice,
-      images,
+      images: safeImages,
       stock,
       embedding, // 🔥 IMPORTANT
     });

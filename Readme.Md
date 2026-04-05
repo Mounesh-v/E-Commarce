@@ -61,6 +61,9 @@ A production-oriented **full-stack E-Commerce application** built using the **ME
 * HuggingFace / Transformers (embedding generation)
 * Pinecone (vector database for semantic search)
 
+
+![alt text](image.png)
+
 ---
 
 ## 📁 Project Structure

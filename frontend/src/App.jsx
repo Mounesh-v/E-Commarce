@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import Collections from "./pages/Collections";
 import CancelPayment from "./pages/CancelPayment";
 import SuccessPayment from "./pages/SuccessPayment";
+import CreateProduct from "./admin/CreateProduct";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
             <Route path="/collections" element={<Collections />} />
             <Route path="/success" element={<SuccessPayment />} />
             <Route path="/cancel" element={<CancelPayment />} />
+            <Route path="/admin" element={<CreateProduct />} />
             <Route
               path="/cart"
               element={
