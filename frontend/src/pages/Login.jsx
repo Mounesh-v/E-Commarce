@@ -24,6 +24,8 @@ const Login = () => {
           },
         },
       );
+
+      console.log("logged user", response);
       const userObj = response.data.user || { role: "user" };
       login(response.data.token, userObj);
       toast.success("Logged in successfully!");

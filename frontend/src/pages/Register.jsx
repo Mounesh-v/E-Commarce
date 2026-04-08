@@ -21,6 +21,7 @@ const Register = () => {
         email,
         password,
       });
+      console.log(response);
       login(response.data.token, response.data.user);
       toast.success("Registration successful!");
       navigate("/");

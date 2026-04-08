@@ -23,24 +23,27 @@ const formatCartItems = (items) => {
 };
 
 export default function useCart() {
+  const [loading, setLoading] = useState(false);
+
   // Stable unique id per hook instance (used to ignore self-originated events).
   const instanceIdRef = useRef(Symbol("cart-instance"));
 
   const [cartItems, setCartItems] = useState([]);
 
   const fetchCart = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await getCartApi();
-      const items =
-        res.data?.items ||
-        res.data?.cart?.items ||
-        res.data?.cart?.items ||
-        res.data ||
-        [];
+
+      console.log("Cart API response:", res.data);
+
+      const items = res.data?.cart?.items || [];
 
       setCartItems(formatCartItems(items));
     } catch (err) {
-      console.error("Fetch cart error:", err);
+      console.error("Fetch cart error:", err.response?.data || err);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -67,6 +70,7 @@ export default function useCart() {
   const addToCart = useCallback(
     async (product, quantity = 1) => {
       try {
+        console.log("Adding product:", product);
         await addToCartApi({
           productId: product._id,
           quantity,
@@ -152,4 +156,3 @@ export default function useCart() {
     cartCount,
   };
 }
-

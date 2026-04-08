@@ -5,14 +5,14 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-  
 
-    if (!name || !email || !password ) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         msg: "All fields Required",
         success: false,
       });
     }
+
     const userExist = await User.findOne({ email });
 
     if (userExist) {
@@ -30,10 +30,20 @@ export const register = async (req, res) => {
       password: hashPass,
     });
 
+    //  CREATE TOKEN
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    //  SEND TOKEN + USER
     res.status(201).json({
-      msg: "User Created Successfully",
       success: true,
-      newUser,
+      token,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -56,15 +66,10 @@ export const login = async (req, res) => {
     }
 
     // ADMIN LOGIN (fixed credentials)
-    if (
-      email === "admin@gmail.com" &&
-      password === "admin123"
-    ) {
-      const token = jwt.sign(
-        { role: "admin" },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-      );
+    if (email === "admin@gmail.com" && password === "admin123") {
+      const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
       return res.json({
         success: true,
@@ -99,7 +104,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       { id: userExist._id, role: "user" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     return res.json({
@@ -113,7 +118,6 @@ export const login = async (req, res) => {
       },
       token,
     });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -126,7 +130,7 @@ export const login = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({
         msg: "User not found",

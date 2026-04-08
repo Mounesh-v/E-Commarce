@@ -12,8 +12,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const addToCartApi = (data) => api.post("/cart/add", data);
-export const getCartApi = () => api.get("/cart/get-cart");
+export const addToCartApi = (data) => {
+  const token = localStorage.getItem("token");
+
+  return api.post("/cart/add", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const getCartApi = () => {
+  const token = localStorage.getItem("token");
+
+  return api.get("/cart/get-cart", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 export const updateCartApi = (data) => api.put("/cart/update", data);
 export const removeCartApi = (productId) =>
   api.delete(`/cart/remove/${productId}`);

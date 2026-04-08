@@ -1,5 +1,6 @@
 import Cart from "../model/Cart.js";
 import Product from "../model/Product.js";
+import mongoose from "mongoose"
 
 export const addToCart = async (req, res) => {
   try {
@@ -56,12 +57,35 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user.id }).populate(
+    const cart = await Cart.findOne({ user: req.params.id }).populate(
       "items.product",
     );
 
-    res.json({ success: true, cart });
+    if (!cart) {
+      return res.json({ cart: { items: [], totalPrice: 0 } });
+    }
+
+    return res.status(200).json({ success: true, cart });
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getCartByUserId = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({
+      user: new mongoose.Types.ObjectId(req.user.id),
+    }).populate("items.product");
+
+    console.log("Fetched cart:", cart);
+
+    if (!cart) {
+      return res.json({ cart: { items: [], totalPrice: 0 } });
+    }
+
+    return res.status(200).json({ success: true, cart });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -138,9 +162,10 @@ export const createCollection = async (req, res) => {
     }
     const existingCollection = cart.collections.find((c) => c.name === name);
     if (existingCollection) {
-      return res.status(400).json({ message: "Collection with this name already exists" });
+      return res
+        .status(400)
+        .json({ message: "Collection with this name already exists" });
     }
-
 
     const newCollection = {
       name,

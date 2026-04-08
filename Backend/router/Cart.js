@@ -8,6 +8,7 @@ import {
   addToCollection,
   createCollection,
   getCollections,
+  getCartByUserId,
 } from "../controller/Cart.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -18,7 +19,7 @@ cart.post("/create-collection", authMiddleware, createCollection);
 cart.get("/collections", authMiddleware, getCollections);
 cart.post("/collection", authMiddleware, addToCollection);
 
-cart.get("/get-cart", authMiddleware, getCart);
+cart.get("/get-cart", authMiddleware, getCartByUserId);
 cart.put("/update", authMiddleware, updateCartItem);
 cart.delete("/remove/:productId", authMiddleware, removeCartItem);
 cart.delete("/clear", authMiddleware, clearCart);

@@ -47,4 +47,3 @@ export default function useAuth() {
 
   return { user, loading, login, logout };
 }
-

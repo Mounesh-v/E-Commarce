@@ -49,7 +49,7 @@ const CreateProduct = () => {
       };
 
       await axios.post("http://localhost:3000/api/product", payload);
-      toast.success("Product created ✅");
+      toast.success("Product created ");
       setForm({
         name: "",
         desc: "",

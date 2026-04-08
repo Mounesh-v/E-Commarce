@@ -62,7 +62,7 @@ const ProductCard = ({ product }) => {
           <button
             className="text-sm font-medium mt-2 flex items-center gap-1 bg-primary-600 text-white py-2 px-3 rounded-lg"
             onClick={() => {
-              setSelectedProduct(product); // ✅ correct
+              setSelectedProduct(product); //  correct
               setShowModal(true);
             }}
           >
