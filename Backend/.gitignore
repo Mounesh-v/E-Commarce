@@ -2,6 +2,10 @@
 # Node Modules
 # ========================
 node_modules/
+node_modules
+dist
+build
+.env
 
 # ========================
 # Environment Variables
@@ -73,3 +77,5 @@ uploads/
 # ========================
 *.pid
 *.seed
+
+
