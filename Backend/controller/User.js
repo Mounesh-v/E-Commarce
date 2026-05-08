@@ -111,9 +111,11 @@ export const login = async (req, res) => {
       success: true,
       msg: "Login Success",
       user: {
+        _id: userExist._id,
         id: userExist._id,
         name: userExist.name,
         email: userExist.email,
+        profilePic: userExist.profilePic,
         role: "user",
       },
       token,
@@ -130,7 +132,7 @@ export const login = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findById(id).select("-password");
     if (!user) {
       return res.status(404).json({
         msg: "User not found",
@@ -139,6 +141,69 @@ export const getUser = async (req, res) => {
     }
     res.status(200).json({
       success: true,
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      msg: "Server Error",
+      success: false,
+    });
+  }
+};
+
+export const getMe = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        msg: "Not authorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      msg: "Server Error",
+      success: false,
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, profilePic } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        msg: "Not authorized",
+      });
+    }
+
+    const updates = {};
+    if (typeof name === "string") updates.name = name.trim();
+    if (typeof profilePic === "string") updates.profilePic = profilePic.trim();
+
+    if (!updates.name) {
+      return res.status(400).json({
+        success: false,
+        msg: "Name is required",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      msg: "Profile updated successfully",
       user,
     });
   } catch (error) {

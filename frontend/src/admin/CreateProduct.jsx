@@ -98,26 +98,26 @@ const CreateProduct = () => {
   };
 
   const inputClass =
-    "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-black focus:ring-1 focus:ring-black transition-all bg-white";
+    "w-full border border-gray-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-black dark:focus:border-primary-500 focus:ring-1 focus:ring-black dark:focus:ring-primary-500 transition-all bg-white dark:bg-slate-800";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 px-4 py-10 transition-colors">
       <div className="w-full max-w-md">
         {/* Page heading */}
         <div className="mb-5 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add Product</h1>
+          <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">
             Fill in the details below to list a new item
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4"
+          className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 space-y-4 transition-colors"
         >
           {/* Name */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               Product Name
             </label>
             <input
@@ -131,7 +131,7 @@ const CreateProduct = () => {
 
           {/* Brand */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
               Brand
             </label>
             <input
@@ -146,7 +146,7 @@ const CreateProduct = () => {
           {/* Description */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                 Description
               </label>
               <button

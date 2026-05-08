@@ -47,33 +47,33 @@ const Orders = () => {
   if (orders.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-100 rounded-full mb-6">
-          <Package className="w-10 h-10 text-slate-400" />
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full mb-6">
+          <Package className="w-10 h-10 text-slate-400 dark:text-slate-500" />
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">No orders found</h2>
-        <p className="text-slate-500">You haven't placed any orders yet.</p>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">No orders found</h2>
+        <p className="text-slate-500 dark:text-slate-400">You haven't placed any orders yet.</p>
       </div>
     );
   }
 
   return (
     <div className="py-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-slate-900 mb-8">Order History</h1>
+      <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">Order History</h1>
       <div className="space-y-6">
         {orders.map((order) => (
-          <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="border-b border-slate-100 bg-slate-50/50 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+          <div key={order._id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
+            <div className="border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/50 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
               <div>
-                <p className="text-sm text-slate-500 mb-1">Order Placed</p>
-                <p className="font-semibold text-slate-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Order Placed</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{new Date(order.createdAt).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-500 mb-1">Total</p>
-                <p className="font-semibold text-slate-900">{formatINR(order.totalAmount)}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Total</p>
+                <p className="font-semibold text-slate-900 dark:text-white">{formatINR(order.totalAmount)}</p>
               </div>
               <div>
-                <p className="text-sm text-slate-500 mb-1">Order #</p>
-                <p className="font-semibold text-slate-900 font-mono text-sm">{order._id}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Order #</p>
+                <p className="font-semibold text-slate-900 dark:text-white font-mono text-sm">{order._id}</p>
               </div>
               <div>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${

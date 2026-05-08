@@ -23,13 +23,13 @@ import CreateProduct from "./admin/CreateProduct";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
         <Toaster
           position="top-right"
           reverseOrder={false}
           toastOptions={{
             duration: 3000,
-            className: "text-sm font-medium rounded-xl border border-slate-100",
+            className: "text-sm font-medium rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
           }}
         />
         <Routes>

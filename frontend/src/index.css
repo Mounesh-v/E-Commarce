@@ -3,10 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-  html, body {
-    @apply antialiased bg-slate-50 text-slate-900;
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  html:not(.dark) {
+    color-scheme: light;
   }
 }
+
 .input {
-  @apply w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-black;
+  @apply w-full border border-slate-300 dark:border-slate-600 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 transition-colors;
 }

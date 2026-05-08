@@ -48,18 +48,18 @@ const AISearch = () => {
         <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600 mb-6">
           AI Visual Search
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
           Upload an image and find similar products instantly.
         </p>
       </div>
 
       {/* Upload */}
       <div className="max-w-2xl mx-auto mb-16">
-        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-primary-200 border-dashed rounded-3xl cursor-pointer bg-primary-50/50 hover:bg-primary-50 transition group relative overflow-hidden">
+        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-primary-200 dark:border-primary-800 border-dashed rounded-3xl cursor-pointer bg-primary-50/50 dark:bg-primary-950/30 hover:bg-primary-50 dark:hover:bg-primary-950/50 transition group relative overflow-hidden">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <UploadCloud className="w-10 h-10 text-primary-500 mb-3" />
-            <p className="text-lg text-slate-700">
-              <span className="font-semibold text-primary-600">
+            <UploadCloud className="w-10 h-10 text-primary-500 dark:text-primary-400 mb-3" />
+            <p className="text-lg text-slate-700 dark:text-slate-300">
+              <span className="font-semibold text-primary-600 dark:text-primary-400">
                 Click to upload
               </span>
             </p>
@@ -73,7 +73,7 @@ const AISearch = () => {
           />
 
           {loading && (
-            <div className="absolute inset-0 bg-white/80 flex flex-col justify-center items-center">
+            <div className="absolute inset-0 bg-white/80 dark:bg-slate-800/80 flex flex-col justify-center items-center">
               <div className="w-12 mx-auto text-blue-600 flex items-center justify-center">
                 <svg
                   fill="currentColor"

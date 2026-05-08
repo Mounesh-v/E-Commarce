@@ -73,13 +73,13 @@ const Cart = () => {
   if (cartItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="w-24 h-24 bg-primary-50 rounded-full flex items-center justify-center mb-6">
-          <ShoppingBag className="w-12 h-12 text-primary-300" />
+        <div className="w-24 h-24 bg-primary-50 dark:bg-primary-900/30 rounded-full flex items-center justify-center mb-6">
+          <ShoppingBag className="w-12 h-12 text-primary-300 dark:text-primary-400" />
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-4">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
           Your cart is empty
         </h2>
-        <p className="text-slate-500 mb-8 max-w-md">
+        <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md">
           Looks like you haven't added anything to your cart yet. Discover our
           latest products and collections.
         </p>
@@ -95,20 +95,20 @@ const Cart = () => {
 
   return (
     <div className="py-8 lg:py-12">
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-8">
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-8">
         Shopping Cart
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         <div className="flex-1">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <ul className="divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
+            <ul className="divide-y divide-slate-100 dark:divide-slate-700">
               {cartItems.map((item) => (
                 <li
                   key={item._id}
                   className="p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 group"
                 >
-                  <div className="w-32 h-32 shrink-0 bg-slate-50 rounded-2xl overflow-hidden">
+                  <div className="w-32 h-32 shrink-0 bg-slate-50 dark:bg-slate-700 rounded-2xl overflow-hidden">
                     <img
                       src={item?.image}
                       alt={item.name}
@@ -118,24 +118,24 @@ const Cart = () => {
 
                   <div className="flex-1 flex flex-col sm:flex-row justify-between w-full">
                     <div className="flex-1 mb-4 sm:mb-0 pr-4 text-center sm:text-left">
-                      <h3 className="text-lg font-bold text-slate-900 mb-1">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
                         <Link
                           to={`/product/${item._id}`}
-                          className="hover:text-primary-600 transition-colors"
+                          className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                         >
                           {item.name}
                         </Link>
                       </h3>
-                      <p className="text-slate-500 text-sm mb-4 line-clamp-1">
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-1">
                         {item.description}
                       </p>
-                      <div className="text-xl font-extrabold text-slate-900">
+                      <div className="text-xl font-extrabold text-slate-900 dark:text-white">
                         {formatINR(item?.price)}
                       </div>
                     </div>
 
                     <div className="flex flex-col items-center sm:items-end justify-between">
-                      <div className="flex items-center bg-slate-50 rounded-xl border border-slate-200/60 p-1 mb-4">
+                      <div className="flex items-center bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200/60 dark:border-slate-600 p-1 mb-4">
                         <button
                           onClick={() =>
                             updateQuantity(
@@ -143,18 +143,18 @@ const Cart = () => {
                               Math.max(0, item.cartQuantity - 1),
                             )
                           }
-                          className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg transition-colors font-medium"
+                          className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-600/50 rounded-lg transition-colors font-medium"
                         >
                           -
                         </button>
-                        <span className="w-10 text-center font-semibold text-slate-900 text-sm">
+                        <span className="w-10 text-center font-semibold text-slate-900 dark:text-white text-sm">
                           {item.cartQuantity}
                         </span>
                         <button
                           onClick={() =>
                             updateQuantity(item._id, item.cartQuantity + 1)
                           }
-                          className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 rounded-lg transition-colors font-medium"
+                          className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-600/50 rounded-lg transition-colors font-medium"
                         >
                           +
                         </button>
@@ -162,7 +162,7 @@ const Cart = () => {
 
                       <button
                         onClick={() => removeFromCart(item._id)}
-                        className="text-sm font-medium text-red-500 hover:text-red-600 flex items-center gap-1 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
+                        className="text-sm font-medium text-red-500 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                         Remove
@@ -185,15 +185,15 @@ const Cart = () => {
         </div>
 
         <div className="w-full lg:w-[380px]">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 sticky top-24">
-            <h2 className="text-xl font-bold text-slate-900 mb-6 font-display">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 sticky top-24 transition-colors">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 font-display">
               Order Summary
             </h2>
 
-            <div className="space-y-4 mb-8 text-sm text-slate-600">
+            <div className="space-y-4 mb-8 text-sm text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
                 <span>Subtotal ({cartItems.length} items)</span>
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {formatINR(cartTotal)}
                 </span>
               </div>
@@ -207,10 +207,10 @@ const Cart = () => {
               </div> */}
             </div>
 
-            <div className="border-t border-slate-100 pt-6 mb-8 flex justify-between items-center">
-              <span className="text-lg font-bold text-slate-900">Total</span>
-              {/* <span className="text-3xl font-extrabold text-slate-900">{formatINR(cartTotal * 1.08)}</span> */}
-              <span className="text-3xl font-extrabold text-slate-900">
+            <div className="border-t border-slate-100 dark:border-slate-700 pt-6 mb-8 flex justify-between items-center">
+              <span className="text-lg font-bold text-slate-900 dark:text-white">Total</span>
+              {/* <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{formatINR(cartTotal * 1.08)}</span> */}
+              <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
                 {formatINR(cartTotal)}
               </span>
             </div>
@@ -229,7 +229,7 @@ const Cart = () => {
                 </>
               )}
             </button>
-            <div className="mt-6 text-center text-sm text-slate-500 flex items-center justify-center gap-2">
+            <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 flex items-center justify-center gap-2">
               <ShieldCheck className="w-4 h-4" /> Secure SSL Checkout
             </div>
           </div>

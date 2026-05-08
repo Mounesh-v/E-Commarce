@@ -146,6 +146,7 @@ export default function useCart() {
   );
 
   return {
+    loading,
     cartItems,
     addToCart,
     updateQuantity,

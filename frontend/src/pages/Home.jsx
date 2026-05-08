@@ -135,10 +135,10 @@ const Home = () => {
       <div id="products">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
               Trending Now
             </h2>
-            <p className="text-slate-500 mt-2">
+            <p className="text-slate-500 dark:text-slate-400 mt-2">
               Discover our most popular products this week
             </p>
           </div>
@@ -146,7 +146,7 @@ const Home = () => {
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="w-12 mx-auto text-blue-600 flex items-center justify-center">
+            <div className="w-12 mx-auto text-blue-600 dark:text-blue-400 flex items-center justify-center">
               <svg
                 fill="currentColor"
                 viewBox="0 0 24 24"

@@ -5,6 +5,7 @@ import {
   getEmbeddingFromBuffer,
 } from "../services/ai.service.js";
 import axios from "axios";
+import { buildMongoQuery, parseWithAi } from "./groqParse.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -195,28 +196,16 @@ export const deleteProduct = async (req, res) => {
 
 export const searchProducts = async (req, res) => {
   try {
-    const { query, minPrice, maxPrice } = req.query;
-    let filters = {};
+    const { query } = req.query;
 
-    if (query) {
-      filters.$text = { $search: query };
-    }
+    const aiData = await parseWithAi(query);
+    console.log("ai Data",aiData);
 
-    if (minPrice || maxPrice) {
-      filters.price = {};
-      if (minPrice) filters.price.$gte = Number(minPrice);
-      if (maxPrice) filters.price.$lte = Number(maxPrice);
-    }
+    const mongoQuery = buildMongoQuery(aiData);
 
-    const products = await Product.find(filters)
-      .sort(query ? { score: { $meta: "textScore" } } : { createdAt: -1 })
-      .limit(20);
+    const products = await Product.find(mongoQuery);
 
-    res.json({
-      success: true,
-      count: products.length,
-      products,
-    });
+    res.json({ success: true, products, aiData });
   } catch (error) {
     res.status(500).json({ message: err.message });
   }

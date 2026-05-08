@@ -60,10 +60,10 @@ const ProductDetails = () => {
   if (!product) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-slate-800">Product not found</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Product not found</h2>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 text-primary-600 hover:underline"
+          className="mt-4 text-primary-600 dark:text-primary-400 hover:underline"
         >
           Return to Home
         </button>
@@ -75,15 +75,15 @@ const ProductDetails = () => {
     <div className="py-6 sm:py-8 lg:py-12">
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-8 transition-colors group"
+        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-8 transition-colors group"
       >
         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
         <span className="font-medium">Back to products</span>
       </button>
 
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100/50 overflow-hidden lg:p-12 p-6 sm:p-8">
+      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-100/50 dark:border-slate-700 overflow-hidden lg:p-12 p-6 sm:p-8 transition-colors">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-slate-50 rounded-3xl overflow-hidden group">
+          <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square bg-slate-50 dark:bg-slate-700 rounded-3xl overflow-hidden group">
             <img
               src={
                 product?.images?.[0]?.url ||
@@ -98,12 +98,12 @@ const ProductDetails = () => {
             <div className="mb-2 text-sm font-semibold tracking-wider text-primary-600 uppercase">
               {product.category || "Premium Tech"}
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
               {product.name}
             </h1>
 
             <div className="flex items-end gap-4 mb-6">
-              <span className="text-4xl font-bold text-slate-900">
+              <span className="text-4xl font-bold text-slate-900 dark:text-white">
                 {formatINR(product?.price)}
               </span>
               {product.stock !== 0 ? (
@@ -117,24 +117,24 @@ const ProductDetails = () => {
               )}
             </div>
 
-            <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
               {product.desc}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10 pt-8 border-t border-slate-100">
-              <div className="flex items-center bg-slate-50 rounded-2xl border border-slate-200/60 w-fit h-14 p-1">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10 pt-8 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex items-center bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200/60 w-fit h-14 p-1">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 text-2xl font-light rounded-xl hover:bg-slate-200/50 transition-colors"
+                  className="w-10 h-full flex items-center justify-center text-slate-400 hover:text-white dark:text-white text-2xl font-light rounded-xl hover:bg-slate-200/50 transition-colors"
                 >
                   -
                 </button>
-                <span className="w-14 text-center font-semibold text-slate-900 select-none">
+                <span className="w-14 text-center font-semibold text-slate-900 dark:text-white select-none">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 text-2xl font-light rounded-xl hover:bg-slate-200/50 transition-colors"
+                  className="w-10 h-full flex items-center justify-center text-slate-400 hover:text-white dark:text-white text-2xl font-light rounded-xl hover:bg-slate-200/50 transition-colors"
                 >
                   +
                 </button>
@@ -165,31 +165,31 @@ const ProductDetails = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-slate-100 dark:border-slate-700">
               <div className="flex flex-col gap-2">
                 <Truck className="w-6 h-6 text-primary-500" />
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-slate-900 dark:text-white dark:text-white dark:text-white">
                   Free Shipping
                 </span>
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
                   On orders over ₹50
                 </span>
               </div>
               <div className="flex flex-col gap-2">
                 <RotateCcw className="w-6 h-6 text-primary-500" />
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-slate-900 dark:text-white dark:text-white dark:text-white">
                   30-Day Returns
                 </span>
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
                   No questions asked
                 </span>
               </div>
               <div className="flex flex-col gap-2">
                 <ShieldCheck className="w-6 h-6 text-primary-500" />
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-slate-900 dark:text-white dark:text-white dark:text-white">
                   2 Year Warranty
                 </span>
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
                   Full coverage included
                 </span>
               </div>
