@@ -103,7 +103,10 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+     const products = await Product.find({})
+      .select("-embedding")
+      .sort({ createdAt: -1 })
+      .limit(20);
 
     res.json({
       success: true,

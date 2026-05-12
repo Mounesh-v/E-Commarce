@@ -14,7 +14,7 @@ import { generateDesc, getImageCaption } from "../services/ai.service.js";
 import storage from "../middleware/cloudinary.js";
 const uploadimgDes = multer();
 const upload = multer({ storage });
-import { uploadMemory, uploadDisk } from "../middleware/upload.js";
+import { uploadMemory } from "../middleware/upload.js";
 
 const product = express.Router();
 

@@ -14,10 +14,17 @@ const app = express();
 const port =3000;
 
 // connectDb();
-app.use(express.json());
+app.use(express.json({
+  limit: "2mb"
+}));
+
+app.use(express.urlencoded({
+  extended: true,
+  limit: "2mb"
+}));
 
 app.get("/", (req, res) => {
-  res.json({ msg: "hi" });
+  res.json({ msg: "Server Running Health Check" });
 });
 
 app.use(cors({

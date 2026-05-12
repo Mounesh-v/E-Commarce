@@ -9,24 +9,24 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await api.get("/product/get-all-products");
-        if (response?.data?.products && response?.data?.products?.length > 0) {
-          setProducts(response.data.products);
-        } else {
-          setProducts(response?.data?.products);
+    useEffect(() => {
+      const fetchProducts = async () => {
+        try {
+          const response = await api.get("/product/get-all-products");
+          if (response?.data?.products && response?.data?.products?.length > 0) {
+            setProducts(response.data.products);
+          } else {
+            setProducts(response?.data?.products);
+          }
+        } catch (error) {
+          console.log("Using mock data, backend not reachable:", error.message);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.log("Using mock data, backend not reachable:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchProducts();
-  }, []);
+      fetchProducts();
+    }, []);
 
   const slides = [
     {
