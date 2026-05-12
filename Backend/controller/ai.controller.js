@@ -1,18 +1,38 @@
 import Product from "../model/Product.js";
 import { getEmbeddingFromBuffer } from "../services/ai.service.js";
+import { logMemoryUsage, normalizeVector } from "../services/transformer.util.js";
 
-// cosine similarity
+const VECTOR_FIELDS = "name desc brand price discountPrice images stock ratings +embedding";
+const RESPONSE_LIMIT = Number(process.env.IMAGE_SEARCH_LIMIT || 8);
+const MIN_BEST_SCORE = Number(process.env.IMAGE_SEARCH_MIN_BEST_SCORE || 0.25);
+const MIN_SIMILAR_SCORE = Number(process.env.IMAGE_SEARCH_MIN_SIMILAR_SCORE || 0.35);
+
 const cosineSimilarity = (a, b) => {
-  const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
-  const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
-  const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
-  return dot / (magA * magB);
+  if (!a.length || !b.length || a.length !== b.length) return 0;
+
+  let dot = 0;
+  let magA = 0;
+  let magB = 0;
+
+  for (let i = 0; i < a.length; i += 1) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+
+  const denominator = Math.sqrt(magA) * Math.sqrt(magB);
+  return denominator ? dot / denominator : 0;
 };
 
-// normalize vector
-const normalize = (vec) => {
-  const mag = Math.sqrt(vec.reduce((sum, val) => sum + val * val, 0));
-  return vec.map((v) => v / mag);
+const stripEmbedding = (product) => {
+  const { embedding, ...safeProduct } = product;
+  return safeProduct;
+};
+
+const addTopResult = (topResults, candidate) => {
+  topResults.push(candidate);
+  topResults.sort((a, b) => b.score - a.score);
+  if (topResults.length > RESPONSE_LIMIT) topResults.pop();
 };
 
 export const searchByImage = async (req, res) => {
@@ -21,62 +41,44 @@ export const searchByImage = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    // get embedding
-    const embedding = normalize(
-      await getEmbeddingFromBuffer(req.file.buffer)
-    );
+    logMemoryUsage("image-search-start");
+    const queryEmbedding = await getEmbeddingFromBuffer(req.file.buffer);
+    const topResults = [];
 
-    const products = await Product.find();
+    const cursor = Product.find({ embedding: { $exists: true, $ne: [] } })
+      .select(VECTOR_FIELDS)
+      .lean()
+      .cursor({ batchSize: Number(process.env.IMAGE_SEARCH_BATCH_SIZE || 25) });
 
-    //  scoring
-    const scored = products
-      .filter((p) => p.embedding && p.embedding.length > 0)
-      .map((p) => {
-        const score = cosineSimilarity(
-          embedding,
-          normalize(p.embedding)
-        );
+    for await (const product of cursor) {
+      const productEmbedding = normalizeVector(product.embedding);
+      const score = cosineSimilarity(queryEmbedding, productEmbedding);
 
-        console.log(`🔍 ${p.name}: ${score.toFixed(3)}`);
+      if (score >= MIN_SIMILAR_SCORE || topResults.length < RESPONSE_LIMIT) {
+        addTopResult(topResults, {
+          product: stripEmbedding(product),
+          score,
+        });
+      }
+    }
 
-        return { product: p, score };
-      })
-      .sort((a, b) => b.score - a.score);
-
-    if (!scored.length) {
+    if (!topResults.length || topResults[0].score < MIN_BEST_SCORE) {
+      logMemoryUsage("image-search-no-match");
       return res.json({
         identifiedProduct: null,
         similarProducts: [],
       });
     }
 
-    const bestScore = scored[0].score;
-    console.log("🏆 Best:", bestScore.toFixed(3));
+    const similarProducts = topResults.filter((item) => item.score > MIN_SIMILAR_SCORE);
 
-    //  no relevant match
-    if (bestScore < 0.25) {
-      return res.json({
-        identifiedProduct: null,
-        similarProducts: [],
-      });
-    }
-
-    // ✅ best match
-    const identifiedProduct = scored[0].product;
-
-    // ✅ similar products
-    const similarProducts = scored
-      .filter((item) => item.score > 0.35)
-      .slice(0, 8);
-
-    // 🔥 final response (frontend friendly)
-    res.json({
-      identifiedProduct,
+    logMemoryUsage("image-search-done");
+    return res.json({
+      identifiedProduct: topResults[0].product,
       similarProducts,
     });
-
   } catch (err) {
-    console.error("❌ Backend Error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Image search error:", err);
+    return res.status(500).json({ error: err.message });
   }
 };

@@ -34,10 +34,11 @@ const ProductSchema = new mongoose.Schema({
   embedding: {
     type: [Number], // vector
     default: [],
+    select: false,
   },
-});
+}, { timestamps: true });
 
-ProductSchema.index({ name: "text", description: "text" });
+ProductSchema.index({ name: "text", desc: "text" });
 
 const Product = mongoose.model("Product", ProductSchema);
 export default Product;

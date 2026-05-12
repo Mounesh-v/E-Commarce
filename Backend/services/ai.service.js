@@ -1,13 +1,13 @@
 import axios from "axios";
-import { pipeline } from "@xenova/transformers";
-import { fileURLToPath } from "url";
-import path from "path";
-import fs from "fs";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 import Groq from "groq-sdk";
+import {
+  disposeTransformerModel,
+  getImageEmbeddingExtractor,
+  getImageEmbeddingFromBuffer,
+} from "./transformer.util.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-// auto generate product description using llama3 model from text generation api
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export const generateDesc = async (subject, brand) => {
@@ -17,55 +17,32 @@ export const generateDesc = async (subject, brand) => {
       : `Write a SHORT ecommerce product description (2 lines only) for: ${subject}. No headings. No bullet points. Maximum 40 words.`;
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // same Llama3, free on Groq
+      model: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 100,
     });
 
     return response.choices[0].message.content.trim();
   } catch (error) {
-    console.error(error.message);
+    console.error("Description error:", error.message);
     return "High quality product with excellent performance.";
   }
 };
 
-// model for the Ai img Search
-let extractor;
+// Backward-compatible export. This is intentionally lazy: callers may invoke it,
+// but server startup should not.
+export const loadModel = async () => getImageEmbeddingExtractor();
 
-export const loadModel = async () => {
-  extractor = await pipeline(
-    "image-feature-extraction",
-    "Xenova/clip-vit-base-patch32",
-  );
-  console.log("✅ CLIP Image Model Loaded");
-};
+export const getEmbeddingFromBuffer = async (buffer) => getImageEmbeddingFromBuffer(buffer);
 
-export const getEmbeddingFromBuffer = async (buffer) => {
-  if (!extractor) throw new Error("Model not loaded");
-
-  const tempPath = path.join(__dirname, "../uploads", `temp-${Date.now()}.jpg`);
-
-  fs.writeFileSync(tempPath, buffer);
-
-  const output = await extractor(tempPath);
-
-  fs.unlinkSync(tempPath);
-
-  const raw = output[0]?.data || output.data;
-
-  const embedding = Array.from(raw).flat();
-
-  // normalize HERE
-  const mag = Math.sqrt(embedding.reduce((sum, v) => sum + v * v, 0));
-  return mag === 0 ? embedding : embedding.map((v) => v / mag);
-};
+export const cleanupAiResources = disposeTransformerModel;
 
 export const getImageCaption = async (buffer) => {
   try {
     const base64 = buffer.toString("base64");
 
     const response = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct", // free vision model on Groq
+      model: process.env.GROQ_VISION_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct",
       messages: [
         {
           role: "user",
@@ -89,4 +66,14 @@ export const getImageCaption = async (buffer) => {
     console.error("Caption error:", error.message);
     return "";
   }
+};
+
+export const fetchImageBuffer = async (url) => {
+  const response = await axios.get(url, {
+    responseType: "arraybuffer",
+    maxContentLength: Number(process.env.AI_IMAGE_MAX_BYTES || 5 * 1024 * 1024),
+    timeout: Number(process.env.AI_IMAGE_FETCH_TIMEOUT_MS || 15000),
+  });
+
+  return Buffer.from(response.data);
 };
