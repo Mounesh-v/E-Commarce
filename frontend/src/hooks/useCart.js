@@ -11,15 +11,24 @@ import {
 const formatCartItems = (items) => {
   if (!Array.isArray(items)) return [];
 
-  return items.map((item) => ({
-    _id: item.product?._id ?? item.productId ?? item._id,
-    name: item.product?.name ?? item.name,
-    price: Number(item.product?.price ?? item.price ?? 0),
-    image: item.product?.images?.[0]?.url ?? item.image,
-    description:
-      item.product?.desc ?? item.product?.description ?? item.description,
-    cartQuantity: Number(item.quantity ?? item.cartQuantity ?? 0),
-  }));
+  return items.map((item) => {
+    const populated = item.product && typeof item.product === "object"
+      ? item.product
+      : null;
+
+    return {
+      _id:
+        populated?._id ??
+        (typeof item.product === "string" ? item.product : null) ??
+        item._id,
+      name: populated?.name ?? item.name,
+      price: Number(populated?.price ?? item.price ?? 0),
+      image: populated?.images?.[0]?.url ?? item.image,
+      description:
+        populated?.desc ?? populated?.description ?? item.description,
+      cartQuantity: Number(item.quantity ?? item.cartQuantity ?? 0),
+    };
+  });
 };
 
 export default function useCart() {
@@ -31,17 +40,21 @@ export default function useCart() {
   const [cartItems, setCartItems] = useState([]);
 
   const fetchCart = useCallback(async () => {
+    if (!localStorage.getItem("token")) {
+      setCartItems([]);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await getCartApi();
-
-      console.log("Cart API response:", res.data);
 
       const items = res.data?.cart?.items || [];
 
       setCartItems(formatCartItems(items));
     } catch (err) {
       console.error("Fetch cart error:", err.response?.data || err);
+      if (err.response?.status === 401) setCartItems([]);
     } finally {
       setLoading(false);
     }
@@ -55,8 +68,16 @@ export default function useCart() {
       fetchCart();
     };
 
+    const onAuthChanged = () => {
+      fetchCart();
+    };
+
     window.addEventListener("cart-changed", onCartChanged);
-    return () => window.removeEventListener("cart-changed", onCartChanged);
+    window.addEventListener("auth-changed", onAuthChanged);
+    return () => {
+      window.removeEventListener("cart-changed", onCartChanged);
+      window.removeEventListener("auth-changed", onAuthChanged);
+    };
   }, [fetchCart]);
 
   const notifyCartChanged = useCallback(() => {
@@ -70,7 +91,6 @@ export default function useCart() {
   const addToCart = useCallback(
     async (product, quantity = 1) => {
       try {
-        console.log("Adding product:", product);
         await addToCartApi({
           productId: product._id,
           quantity,
@@ -79,8 +99,12 @@ export default function useCart() {
         await fetchCart();
         notifyCartChanged();
       } catch (err) {
-        console.error("Add error:", err);
-        toast.error("Failed to add");
+        if (err.response?.status === 401) {
+          toast.error("Please login to add items to your cart");
+        } else {
+          console.error("Add error:", err);
+          toast.error("Failed to add");
+        }
       }
     },
     [fetchCart, notifyCartChanged],

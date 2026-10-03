@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import api from "../services/api";
+import { Loader2, Sparkles } from "lucide-react";
 
 const CreateProduct = () => {
   const [loading, setLoading] = useState(false);
@@ -25,31 +25,37 @@ const CreateProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const price = Number(form.price);
+    if (!form.name.trim()) return toast.error("Product name is required");
+    if (!Number.isFinite(price) || price <= 0)
+      return toast.error("Enter a valid price");
+
     try {
       let imageUrl = "";
-
-      // Step 1: upload image file to get a real URL
       if (imageFile) {
         const formData = new FormData();
         formData.append("image", imageFile);
-
         const uploadRes = await api.post("/product/upload-image", formData);
         imageUrl = uploadRes.data.url;
       }
 
-      // Step 2: save product with the real URL
+      const discountPrice = Number(form.discountPrice);
+      const stock = Number(form.stock);
+
       const payload = {
-        name: form.name,
+        name: form.name.trim(),
         desc: form.desc,
         brand: form.brand,
-        price: Number(form.price),
-        discountPrice: Number(form.discountPrice),
-        stock: Number(form.stock),
+        price,
+        ...(Number.isFinite(discountPrice) && discountPrice > 0
+          ? { discountPrice }
+          : {}),
+        ...(Number.isFinite(stock) && stock >= 0 ? { stock } : {}),
         ...(imageUrl ? { images: [{ url: imageUrl }] } : {}),
       };
 
-      await axios.post("http://localhost:3000/api/product", payload);
-      toast.success("Product created ");
+      await api.post("/product", payload);
+      toast.success("Product created");
       setForm({
         name: "",
         desc: "",
@@ -76,8 +82,8 @@ const CreateProduct = () => {
       if (imageFile) formData.append("image", imageFile);
       const res = await api.post("/product/generate-desc-combined", formData);
       setForm((prev) => ({ ...prev, desc: res.data.desc }));
-      toast.success("AI Description Generated 🤖");
-    } catch (err) {
+      toast.success("AI Description Generated");
+    } catch {
       toast.error("Failed to generate description");
     } finally {
       setLoading(false);
@@ -86,8 +92,7 @@ const CreateProduct = () => {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    setImageFile(file);
+    if (file) setImageFile(file);
   };
 
   const handleDrop = (e) => {
@@ -98,71 +103,67 @@ const CreateProduct = () => {
   };
 
   const inputClass =
-    "w-full border border-gray-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 outline-none focus:border-black dark:focus:border-primary-500 focus:ring-1 focus:ring-black dark:focus:ring-primary-500 transition-all bg-white dark:bg-slate-800";
+    "w-full border border-sage-200 rounded-xl px-4 py-2.5 text-sm text-sage-800 placeholder-sage-400 outline-none focus:border-sage-500 focus:ring-2 focus:ring-sage-500/20 transition-all bg-white";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900 px-4 py-10 transition-colors">
+    <div className="min-h-screen flex items-center justify-center bg-cream-100 px-4 py-10">
       <div className="w-full max-w-md">
-        {/* Page heading */}
         <div className="mb-5 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Add Product</h1>
-          <p className="text-sm text-gray-400 dark:text-slate-500 mt-1">
-            Fill in the details below to list a new item
+          <h1 className="text-2xl font-display font-bold text-sage-900">
+            Add Product
+          </h1>
+          <p className="text-sm text-sage-500 mt-1">
+            Fill in the details to list a new item
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 p-6 space-y-4 transition-colors"
+          className="card p-6 space-y-4"
         >
-          {/* Name */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
               Product Name
             </label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="e.g. Mens Jacket"
+              placeholder="e.g. Wireless Headphones"
               className={inputClass}
             />
           </div>
 
-          {/* Brand */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
               Brand
             </label>
             <input
               name="brand"
               value={form.brand}
               onChange={handleChange}
-              placeholder="e.g. Nike"
+              placeholder="e.g. Sony"
               className={inputClass}
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
                 Description
               </label>
               <button
                 type="button"
                 onClick={generateDescription}
                 disabled={loading}
-                className="flex items-center gap-1.5 text-xs font-medium text-black border border-black rounded-lg px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 text-xs font-medium text-sage-700 border border-sage-200 rounded-lg px-3 py-1 hover:bg-sage-50 transition-all disabled:opacity-40"
               >
                 {loading ? (
-                  <>
-                    <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                    Generating...
-                  </>
+                  <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <>✨ AI Generate</>
+                  <Sparkles className="w-3 h-3" />
                 )}
+                {loading ? "Generating..." : "AI Generate"}
               </button>
             </div>
             <textarea
@@ -175,7 +176,6 @@ const CreateProduct = () => {
             />
           </div>
 
-          {/* Price · Discount · Stock */}
           <div className="grid grid-cols-3 gap-3">
             {[
               { name: "price", label: "Price", placeholder: "0.00" },
@@ -183,7 +183,7 @@ const CreateProduct = () => {
               { name: "stock", label: "Stock", placeholder: "Qty" },
             ].map((f) => (
               <div key={f.name} className="space-y-1">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
                   {f.label}
                 </label>
                 <input
@@ -198,22 +198,20 @@ const CreateProduct = () => {
             ))}
           </div>
 
-          {/* Image Upload */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-sage-500 uppercase tracking-wider">
               Product Image
             </label>
 
             {imageFile ? (
-              <div className="relative rounded-xl overflow-hidden border border-gray-200 group">
+              <div className="relative rounded-xl overflow-hidden border border-sage-200 group">
                 <img
                   src={URL.createObjectURL(imageFile)}
                   alt="preview"
                   className="w-full h-44 object-cover"
                 />
-                {/* Hover overlay */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <label className="cursor-pointer text-xs font-semibold bg-white text-black px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                  <label className="cursor-pointer text-xs font-semibold bg-white text-sage-800 px-3 py-1.5 rounded-lg hover:bg-cream-50 transition-colors">
                     Replace
                     <input
                       type="file"
@@ -225,16 +223,15 @@ const CreateProduct = () => {
                   <button
                     type="button"
                     onClick={() => setImageFile(null)}
-                    className="text-xs font-semibold bg-white text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="text-xs font-semibold bg-white text-sage-600 px-3 py-1.5 rounded-lg hover:bg-cream-50 transition-colors"
                   >
                     Remove
                   </button>
                 </div>
-                {/* AI analyzing indicator */}
                 {loading && (
                   <div className="absolute bottom-0 inset-x-0 bg-white/90 backdrop-blur-sm px-3 py-2 flex items-center gap-2">
-                    <span className="w-3 h-3 border border-black border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                    <span className="text-xs text-gray-600">
+                    <Loader2 className="w-3 h-3 text-sage-600 animate-spin flex-shrink-0" />
+                    <span className="text-xs text-sage-600">
                       Analyzing image...
                     </span>
                   </div>
@@ -250,8 +247,8 @@ const CreateProduct = () => {
                 onDrop={handleDrop}
                 className={`flex flex-col items-center justify-center gap-2 w-full h-36 rounded-xl border-2 border-dashed cursor-pointer transition-all ${
                   dragOver
-                    ? "border-black bg-gray-50"
-                    : "border-gray-200 hover:border-gray-400 hover:bg-gray-50"
+                    ? "border-sage-500 bg-cream-50"
+                    : "border-sage-200 hover:border-sage-400 hover:bg-cream-50"
                 }`}
               >
                 <svg
@@ -259,7 +256,7 @@ const CreateProduct = () => {
                   height="24"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke={dragOver ? "#111" : "#9ca3af"}
+                  stroke={dragOver ? "#30483B" : "#9CA3AF"}
                   strokeWidth="1.5"
                 >
                   <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -267,13 +264,15 @@ const CreateProduct = () => {
                   <polyline points="21 15 16 10 5 21" />
                 </svg>
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">
-                    <span className="font-semibold text-black">
+                  <p className="text-sm text-sage-500">
+                    <span className="font-semibold text-sage-700">
                       Click to upload
                     </span>{" "}
                     or drag & drop
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">PNG, JPG, WEBP</p>
+                  <p className="text-xs text-sage-400 mt-0.5">
+                    PNG, JPG, WEBP
+                  </p>
                 </div>
                 <input
                   type="file"
@@ -285,10 +284,9 @@ const CreateProduct = () => {
             )}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-black text-white text-sm font-semibold py-3 rounded-xl hover:opacity-90 active:opacity-80 transition-opacity"
+            className="w-full btn-primary"
           >
             Create Product
           </button>

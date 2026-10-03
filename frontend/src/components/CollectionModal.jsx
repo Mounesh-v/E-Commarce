@@ -7,17 +7,24 @@ const CollectionModal = ({ isOpen, onClose, product }) => {
   const [collectionName, setCollectionName] = useState("");
 
   useEffect(() => {
-    if (isOpen) fetchCollections();
-  }, [isOpen]);
+    if (!isOpen || !localStorage.getItem("token")) return undefined;
 
-  const fetchCollections = async () => {
-    try {
-      const res = await api.get("/cart/collections");
-      setCollections(res.data.collections);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    let cancelled = false;
+
+    api
+      .get("/cart/collections")
+      .then((res) => {
+        if (!cancelled) setCollections(res.data.collections || []);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (!cancelled) setCollections([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   const handleSelectCollection = async (colId) => {
     try {
@@ -30,26 +37,34 @@ const CollectionModal = ({ isOpen, onClose, product }) => {
       toast.success("Added to collection ✅");
       onClose();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed");
+      if (err.response?.status === 401) {
+        toast.error("Please login to use collections");
+      } else {
+        toast.error(err?.response?.data?.message || "Failed");
+      }
     }
   };
 
   const handleCreateAndAdd = async () => {
     try {
-      if (!collectionName) {
+      if (!collectionName.trim()) {
         toast.error("Enter collection name");
         return;
       }
 
       const res = await api.post("/cart/create-collection", {
-        name: collectionName,
+        name: collectionName.trim(),
       });
 
       const newId = res.data.collection._id;
 
       await handleSelectCollection(newId);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Error");
+      if (err.response?.status === 401) {
+        toast.error("Please login to use collections");
+      } else {
+        toast.error(err?.response?.data?.message || "Error");
+      }
     }
   };
 

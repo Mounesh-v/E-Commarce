@@ -6,6 +6,7 @@ import user from "./router/User.js";
 import product from "./router/Product.js";
 import cart from "./router/Cart.js";
 import aiRoutes from "./router/ai.routes.js";
+import order from "./router/Order.js";
 import payment from "./services/Payment.js";
 import { cleanupAiResources } from "./services/ai.service.js";
 import { logMemoryUsage } from "./services/transformer.util.js";
@@ -48,7 +49,21 @@ app.use("/api/auth", user);
 app.use("/api/product", product);
 app.use("/api/cart", cart);
 app.use("/api/ai", aiRoutes);
+app.use("/api/order", order);
 app.use("/api/payment", payment);
+
+// JSON 404 + error responses for API routes
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Route not found" });
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res
+    .status(err.status || 500)
+    .json({ success: false, message: err.message || "Server Error" });
+});
 
 let memoryTimer;
 let server;
@@ -93,4 +108,7 @@ const startServer = async () => {
   });
 };
 
-startServer();
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});

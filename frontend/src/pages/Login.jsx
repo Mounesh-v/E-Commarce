@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import { Mail, Lock, ArrowRight, User } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,26 +19,17 @@ const Login = () => {
       const response = await api.post(
         "/auth/user/login",
         { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
+        { headers: { "Content-Type": "application/json" } }
       );
-
-      console.log("logged user", response);
       const userObj = response.data.user || { role: "user" };
       login(response.data.token, userObj);
       toast.success("Logged in successfully!");
-
-      if (userObj.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
+      navigate(userObj.role === "admin" ? "/admin" : "/");
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Login failed. Please try again.",
+        error.response?.data?.msg ||
+          error.response?.data?.message ||
+          "Login failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -45,61 +37,110 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh] bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-100 dark:border-slate-700 transition-colors duration-300">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">
-            Sign in to your account to continue
+    <div className="min-h-screen flex bg-cream-100">
+      {/* Left - Brand image */}
+      <div className="hidden lg:flex lg:w-1/2 bg-sage-800 relative overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-sage-900/90 to-sage-800/80" />
+        <img
+          src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
+        <div className="relative z-10 text-center px-12">
+          <div className="w-16 h-16 rounded-2xl bg-accent-500 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-accent-500/30">
+            <span className="text-white font-bold text-3xl">S</span>
+          </div>
+          <h1 className="text-4xl font-display font-extrabold text-white mb-3">
+            ShopModern
+          </h1>
+          <p className="text-cream-300 text-lg">
+            Calm technology. Thoughtful design.
           </p>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-slate-50/50 dark:bg-slate-700/50 dark:text-white transition-all"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
+      {/* Right - Form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="w-12 h-12 rounded-xl bg-accent-500 flex items-center justify-center mx-auto mb-3">
+              <span className="text-white font-bold text-xl">S</span>
+            </div>
+            <span className="font-display font-bold text-xl text-sage-900">
+              ShopModern
+            </span>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 bg-slate-50/50 dark:bg-slate-700/50 dark:text-white transition-all"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+          <div className="mb-8">
+            <h2 className="text-3xl font-display font-extrabold text-sage-950">
+              Welcome Back
+            </h2>
+            <p className="text-sage-500 mt-2">
+              Sign in to your account to continue
+            </p>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl shadow-md shadow-primary-500/20 transition-all disabled:opacity-70"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-sage-700 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-sage-400" />
+                <input
+                  type="email"
+                  required
+                  className="input pl-11"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
 
-        <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-          >
-            Sign up
-          </Link>
+            <div>
+              <label className="block text-sm font-semibold text-sage-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-sage-400" />
+                <input
+                  type="password"
+                  required
+                  className="input pl-11"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {loading ? (
+                "Signing in..."
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center text-sm text-sage-600">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-sage-800 hover:text-accent-600 transition-colors"
+            >
+              Sign up
+            </Link>
+          </div>
         </div>
       </div>
     </div>

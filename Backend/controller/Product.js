@@ -1,17 +1,36 @@
 import Product from "../model/Product.js";
+import mongoose from "mongoose";
 import { buildMongoQuery, parseWithAi } from "./groqParse.js";
 import { fetchImageBuffer, generateDesc, getEmbeddingFromBuffer } from "../services/ai.service.js";
 
 const PUBLIC_PRODUCT_FIELDS = "-embedding";
 const PRODUCT_PAGE_LIMIT = Number(process.env.PRODUCT_PAGE_LIMIT || 20);
 const MAX_BULK_CREATE = Number(process.env.PRODUCT_MAX_BULK_CREATE || 25);
+const UPDATABLE_FIELDS = [
+  "name",
+  "desc",
+  "brand",
+  "price",
+  "discountPrice",
+  "images",
+  "stock",
+  "ratings",
+];
+
+const escapeRegex = (value) =>
+  String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const buildEmbeddingFromImages = async (images = []) => {
-  const imageUrl = images[0]?.url;
-  if (!imageUrl?.startsWith("http")) return [];
+  try {
+    const imageUrl = images[0]?.url;
+    if (!imageUrl?.startsWith("http")) return [];
 
-  const imageBuffer = await fetchImageBuffer(imageUrl);
-  return getEmbeddingFromBuffer(imageBuffer);
+    const imageBuffer = await fetchImageBuffer(imageUrl);
+    return await getEmbeddingFromBuffer(imageBuffer);
+  } catch (error) {
+    console.error("Embedding build skipped:", error.message);
+    return [];
+  }
 };
 
 export const createProduct = async (req, res) => {
@@ -91,24 +110,33 @@ export const createProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const page = Math.max(Number(req.query.page || 1), 1);
-    const limit = Math.min(Number(req.query.limit || PRODUCT_PAGE_LIMIT), 50);
-    const skip = (page - 1) * limit;
+    const wantsAll = String(req.query.limit || "").toLowerCase() === "all";
 
-    const products = await Product.find({})
+    const page = wantsAll ? 1 : Math.max(Number(req.query.page || 1), 1);
+    const limit = wantsAll
+      ? 0
+      : Math.min(Number(req.query.limit || PRODUCT_PAGE_LIMIT), 50);
+    const skip = wantsAll ? 0 : (page - 1) * limit;
+
+    let query = Product.find({});
+    if (!wantsAll) {
+      query = query.skip(skip).limit(limit);
+    }
+
+    const products = await query
       .select(PUBLIC_PRODUCT_FIELDS)
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
       .lean();
 
-    return res.json({
+    const response = {
       success: true,
       count: products.length,
       page,
-      limit,
+      limit: wantsAll ? products.length : limit,
       products,
-    });
+    };
+
+    return res.json(response);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -119,6 +147,13 @@ export const getAllProducts = async (req, res) => {
 
 export const getSingleProduct = async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
     const product = await Product.findById(req.params.id).select(PUBLIC_PRODUCT_FIELDS).lean();
 
     if (!product) {
@@ -128,10 +163,8 @@ export const getSingleProduct = async (req, res) => {
       });
     }
 
-    return res.json({
-      success: true,
-      product,
-    });
+    const response = { success: true, product };
+    return res.json(response);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -142,6 +175,13 @@ export const getSingleProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
     const existingProduct = await Product.findById(req.params.id).select("_id").lean();
 
     if (!existingProduct) {
@@ -151,7 +191,12 @@ export const updateProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const updates = {};
+    for (const field of UPDATABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     })
@@ -173,6 +218,13 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
     const product = await Product.findById(req.params.id).select("_id");
 
     if (!product) {
@@ -199,8 +251,13 @@ export const deleteProduct = async (req, res) => {
 export const searchProducts = async (req, res) => {
   try {
     const { query } = req.query;
+
+    if (!query || !String(query).trim()) {
+      return res.json({ success: true, products: [], aiData: null });
+    }
+
     const aiData = await parseWithAi(query);
-    const mongoQuery = buildMongoQuery(aiData);
+    const mongoQuery = buildMongoQuery(aiData, query);
 
     const products = await Product.find(mongoQuery)
       .select(PUBLIC_PRODUCT_FIELDS)
@@ -209,17 +266,19 @@ export const searchProducts = async (req, res) => {
 
     return res.json({ success: true, products, aiData });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 export const suggestProducts = async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) return res.status(400).json([]);
+    if (!query || !String(query).trim()) {
+      return res.json({ success: true, products: [] });
+    }
 
     const products = await Product.find({
-      name: { $regex: query, $options: "i" },
+      name: { $regex: escapeRegex(query), $options: "i" },
     })
       .select("name images price")
       .limit(5)

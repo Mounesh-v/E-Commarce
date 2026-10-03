@@ -10,72 +10,109 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
-  const handleGetProduct = async (id) => {
-    navigate(`/product/${id}`);
-  };
+  const handleGetProduct = () => navigate(`/product/${product._id}`);
+
+  const hasDiscount =
+    product.discountPrice &&
+    product.discountPrice > product.price;
+  const discountPct = hasDiscount
+    ? Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)
+    : 0;
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-xl dark:hover:shadow-slate-900/50 transition-all duration-300 group flex flex-col">
+    <div className="card group flex flex-col overflow-hidden">
+      {/* Image */}
       <div
-        onClick={() => handleGetProduct(product._id)}
-        className="block relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-700"
+        onClick={handleGetProduct}
+        className="relative aspect-square overflow-hidden bg-cream-50 cursor-pointer"
       >
+        {!imgLoaded && <div className="absolute inset-0 skeleton" />}
         <img
           src={product?.images?.[0]?.url}
           alt={product.name}
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+          onLoad={() => setImgLoaded(true)}
+          className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ${
+            imgLoaded ? "opacity-100" : "opacity-0"
+          }`}
         />
-        {product.isNew && (
-          <div className="absolute top-4 left-4 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm shadow-primary-500/30">
-            NEW
-          </div>
-        )}
+
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {hasDiscount && (
+            <span className="bg-muted-red text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">
+              {discountPct}% OFF
+            </span>
+          )}
+          {product.isNew && (
+            <span className="bg-sage-800 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">
+              NEW
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="p-5 flex flex-col flex-1">
-        <div className="mb-4 flex-1">
-          <div onClick={() => handleGetProduct(product._id)} className="block">
-            <h3 className="font-semibold text-lg text-slate-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-              {product.name}
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 min-h-[40px]">
-              {product.description || "Amazing product you need right now."}
+      {/* Content */}
+      <div className="p-4 flex flex-col flex-1">
+        <div className="mb-3 flex-1" onClick={handleGetProduct}>
+          {product.brand && (
+            <p className="text-[11px] font-semibold text-sage-500 uppercase tracking-wider mb-1">
+              {product.brand}
             </p>
+          )}
+          <h3 className="font-semibold text-sage-900 line-clamp-1 group-hover:text-sage-700 transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-sm text-sage-500 line-clamp-2 mt-1 min-h-[36px]">
+            {product.desc || "Premium product you'll love."}
+          </p>
+        </div>
+
+        {/* Price + Actions */}
+        <div className="flex items-end justify-between mt-auto pt-2">
+          <div>
+            <span className="text-lg font-bold text-sage-900">
+              {formatINR(product.price)}
+            </span>
+            {hasDiscount && (
+              <span className="ml-2 text-sm text-sage-400 line-through">
+                {formatINR(product.discountPrice)}
+              </span>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-auto">
-          <span className="text-xl font-bold text-slate-900 dark:text-white">
-            {formatINR(product.price)}
-          </span>
+        <div className="flex gap-2 mt-3">
           <button
-            className="p-3 rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-primary-600 dark:hover:bg-primary-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-primary-500/30 active:scale-95"
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               addToCart(product, 1);
             }}
-            title="Add to Cart"
+            className="flex-1 flex items-center justify-center gap-2 bg-sage-800 hover:bg-sage-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors active:scale-[0.98]"
           >
-            <ShoppingCart className="w-5 h-5" />
+            <ShoppingCart className="w-4 h-4" />
+            Add to Cart
           </button>
           <button
-            className="text-sm font-medium mt-2 flex items-center gap-1 bg-primary-600 text-white py-2 px-3 rounded-lg hover:bg-primary-700 transition-all"
-            onClick={() => {
-              setSelectedProduct(product); //  correct
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedProduct(product);
               setShowModal(true);
             }}
+            className="px-3 py-2.5 border border-sage-200 rounded-xl text-sage-600 hover:bg-sage-50 transition-colors text-sm font-medium"
+            title="Add to Collection"
           >
-            Add Collection
+            +
           </button>
-
-          <CollectionModal
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-            product={selectedProduct}
-          />
         </div>
       </div>
+
+      <CollectionModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 };

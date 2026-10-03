@@ -16,9 +16,25 @@ const authMiddleware = async (req, res, next) => {
         message: "Not authorized, token missing",
       });
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select("-password");
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded.id) {
+      return res.status(401).json({
+        success: false,
+        message: "Token invalid, please login again",
+      });
+    }
+
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Token invalid, user no longer exists",
+      });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
     res.status(401).json({

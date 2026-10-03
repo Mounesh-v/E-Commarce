@@ -12,7 +12,6 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import AISearch from "./pages/AISearch";
-import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./components/AdminRoute";
 import Profile from "./pages/Profile";
 import Collections from "./pages/Collections";
@@ -23,13 +22,14 @@ import CreateProduct from "./admin/CreateProduct";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
+      <div className="min-h-screen bg-cream-100 font-sans text-sage-900 transition-colors duration-300">
         <Toaster
           position="top-right"
           reverseOrder={false}
           toastOptions={{
             duration: 3000,
-            className: "text-sm font-medium rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
+            className:
+              "text-sm font-medium rounded-xl border border-sage-100 bg-white text-sage-900 shadow-soft",
           }}
         />
         <Routes>
@@ -40,24 +40,11 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/ai-search" element={<AISearch />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path="/success" element={<SuccessPayment />} />
-            <Route path="/cancel" element={<CancelPayment />} />
-            <Route path="/admin" element={<CreateProduct />} />
             <Route
-              path="/cart"
+              path="/collections"
               element={
                 <ProtectedRoute>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
+                  <Collections />
                 </ProtectedRoute>
               }
             />
@@ -69,12 +56,30 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/success" element={<SuccessPayment />} />
+            <Route path="/cancel" element={<CancelPayment />} />
             <Route
               path="/admin"
               element={
                 <AdminRoute>
-                  <AdminDashboard />
+                  <CreateProduct />
                 </AdminRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
               }
             />
           </Route>

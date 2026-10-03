@@ -13,6 +13,13 @@ export const register = async (req, res) => {
       });
     }
 
+    if (email.toLowerCase() === "admin@gmail.com") {
+      return res.status(400).json({
+        msg: "This email is reserved",
+        success: false,
+      });
+    }
+
     const userExist = await User.findOne({ email });
 
     if (userExist) {
@@ -43,6 +50,8 @@ export const register = async (req, res) => {
         _id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        profilePic: newUser.profilePic,
+        role: newUser.role,
       },
     });
   } catch (error) {
@@ -65,18 +74,38 @@ export const login = async (req, res) => {
       });
     }
 
-    // ADMIN LOGIN (fixed credentials)
+    // ADMIN LOGIN (fixed credentials) — backed by a real user document so the
+    // token carries an id and every auth-protected route works for the admin.
     if (email === "admin@gmail.com" && password === "admin123") {
-      const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-      });
+      let adminUser = await User.findOne({ email: "admin@gmail.com" });
+
+      if (!adminUser) {
+        adminUser = await User.create({
+          name: "Admin",
+          email: "admin@gmail.com",
+          password: await bcrypt.hash("admin123", 10),
+          role: "admin",
+        });
+      } else if (adminUser.role !== "admin") {
+        adminUser.role = "admin";
+        await adminUser.save();
+      }
+
+      const token = jwt.sign(
+        { id: adminUser._id, role: "admin" },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" },
+      );
 
       return res.json({
         success: true,
         msg: "Admin Login Success",
         user: {
+          _id: adminUser._id,
+          name: adminUser.name,
+          email: adminUser.email,
+          profilePic: adminUser.profilePic,
           role: "admin",
-          email: "admin@gmail.com",
         },
         token,
       });

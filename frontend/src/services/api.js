@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://e-commarce-5k6i.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
 });
 
 api.interceptors.request.use((config) => {
@@ -12,24 +12,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const addToCartApi = (data) => {
-  const token = localStorage.getItem("token");
+export const addToCartApi = (data) => api.post("/cart/add", data);
 
-  return api.post("/cart/add", data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
-export const getCartApi = () => {
-  const token = localStorage.getItem("token");
+export const getCartApi = () => api.get("/cart/get-cart");
 
-  return api.get("/cart/get-cart", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
 export const updateCartApi = (data) => api.put("/cart/update", data);
 export const removeCartApi = (productId) =>
   api.delete(`/cart/remove/${productId}`);

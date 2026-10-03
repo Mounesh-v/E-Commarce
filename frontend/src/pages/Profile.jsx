@@ -27,7 +27,6 @@ const getStoredUser = () => {
 
 const normalizeUser = (user) => {
   if (!user) return null;
-
   return {
     ...user,
     _id: user._id || user.id,
@@ -63,12 +62,8 @@ const Profile = () => {
       try {
         const res = await api.get("/auth/me");
         const nextUser = normalizeUser(res.data.user);
-
         setUser(nextUser);
-        setForm({
-          name: nextUser?.name || "",
-          profilePic: nextUser?.profilePic || "",
-        });
+        setForm({ name: nextUser?.name || "", profilePic: nextUser?.profilePic || "" });
         localStorage.setItem("userInfo", JSON.stringify(nextUser));
         window.dispatchEvent(new Event("auth-changed"));
       } catch (error) {
@@ -77,12 +72,8 @@ const Profile = () => {
           try {
             const res = await api.get(`/auth/user/${stored._id}`);
             const nextUser = normalizeUser(res.data.user);
-
             setUser(nextUser);
-            setForm({
-              name: nextUser?.name || "",
-              profilePic: nextUser?.profilePic || "",
-            });
+            setForm({ name: nextUser?.name || "", profilePic: nextUser?.profilePic || "" });
             localStorage.setItem("userInfo", JSON.stringify(nextUser));
             window.dispatchEvent(new Event("auth-changed"));
           } catch {
@@ -95,23 +86,20 @@ const Profile = () => {
         setProfileLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((c) => ({ ...c, [name]: value }));
   };
 
-  const handleUpdate = async (event) => {
-    event.preventDefault();
-
+  const handleUpdate = async (e) => {
+    e.preventDefault();
     if (!form.name.trim()) {
       toast.error("Name is required");
       return;
     }
-
     setSaving(true);
     try {
       const res = await api.put("/auth/profile", {
@@ -119,7 +107,6 @@ const Profile = () => {
         profilePic: form.profilePic,
       });
       const nextUser = normalizeUser(res.data.user);
-
       setUser(nextUser);
       localStorage.setItem("userInfo", JSON.stringify(nextUser));
       window.dispatchEvent(new Event("auth-changed"));
@@ -134,30 +121,26 @@ const Profile = () => {
   if (profileLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-sage-500" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl py-6 sm:py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary-600">
+          <p className="text-xs font-semibold uppercase tracking-wider text-sage-500">
             My Account
           </p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-            Your shopping profile
-          </h1>
-          <p className="mt-2 max-w-2xl text-slate-500 dark:text-slate-400">
-            Manage your account details and keep an eye on what is waiting in
-            your cart.
+          <h1 className="mt-2 section-title text-3xl">Your Profile</h1>
+          <p className="mt-2 text-sage-500 text-sm max-w-lg">
+            Manage your account details and keep track of your cart.
           </p>
         </div>
-
         <Link
           to="/orders"
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-700 px-5 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition-all hover:bg-slate-800 dark:hover:bg-slate-600"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-sage-800 px-5 text-sm font-semibold text-white hover:bg-sage-700 transition-colors"
         >
           View Orders
           <ArrowRight className="h-4 w-4" />
@@ -165,9 +148,10 @@ const Profile = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-3xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm sm:p-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-3xl bg-primary-600 text-white shadow-lg shadow-primary-500/20">
+        {/* Profile card */}
+        <section className="card p-6 sm:p-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <div className="relative h-24 w-24 shrink-0 rounded-2xl bg-sage-800 text-white overflow-hidden">
               {form.profilePic ? (
                 <img
                   src={form.profilePic}
@@ -175,71 +159,68 @@ const Profile = () => {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-3xl font-black">
-                  {initials || <UserRound className="h-10 w-10" />}
+                <div className="flex h-full w-full items-center justify-center text-2xl font-black">
+                  {initials || <UserRound className="h-8 w-8" />}
                 </div>
               )}
-              <div className="absolute bottom-2 right-2 rounded-full bg-white p-2 text-slate-700 shadow-md">
-                <Camera className="h-4 w-4" />
+              <div className="absolute bottom-1.5 right-1.5 rounded-full bg-white p-1.5 text-sage-600 shadow-md">
+                <Camera className="h-3.5 w-3.5" />
               </div>
             </div>
 
             <div className="min-w-0">
-              <h2 className="truncate text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="truncate text-xl font-display font-bold text-sage-900">
                 {user?.name || "Customer"}
               </h2>
-              <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <Mail className="h-4 w-4 shrink-0" />
+              <div className="mt-1.5 flex items-center gap-2 text-sm text-sage-500">
+                <Mail className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{user?.email}</span>
               </div>
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/50 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-sage-100 px-2.5 py-1 text-xs font-semibold text-sage-700">
                 Active shopper
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleUpdate} className="mt-8 space-y-5">
+          <form onSubmit={handleUpdate} className="mt-7 space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1.5 block text-sm font-semibold text-sage-700">
                 Full name
               </label>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                className="h-12 w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50/60 dark:bg-slate-700/50 px-4 text-slate-900 dark:text-white outline-none transition-all focus:border-primary-500 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-primary-500/10"
+                className="input"
                 placeholder="Enter your name"
               />
             </div>
-
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1.5 block text-sm font-semibold text-sage-700">
                 Profile image URL
               </label>
               <input
                 name="profilePic"
                 value={form.profilePic}
                 onChange={handleChange}
-                className="h-12 w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50/60 dark:bg-slate-700/50 px-4 text-slate-900 dark:text-white outline-none transition-all focus:border-primary-500 focus:bg-white dark:focus:bg-slate-700 focus:ring-4 focus:ring-primary-500/10"
+                className="input"
                 placeholder="https://example.com/avatar.jpg"
               />
             </div>
-
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1.5 block text-sm font-semibold text-sage-700">
                 Email address
               </label>
               <input
                 value={user?.email || ""}
                 readOnly
-                className="h-12 w-full cursor-not-allowed rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/50 px-4 text-slate-500 dark:text-slate-400"
+                className="input cursor-not-allowed bg-cream-50"
               />
             </div>
-
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 text-sm font-bold text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-600"
+              className="btn-primary flex items-center gap-2 disabled:opacity-60"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -251,57 +232,59 @@ const Profile = () => {
           </form>
         </section>
 
-        <aside className="space-y-6">
+        {/* Sidebar */}
+        <aside className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 dark:bg-primary-900/50 text-primary-600">
+            <div className="card p-5">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sage-50 text-sage-600">
                 <ShoppingCart className="h-5 w-5" />
               </div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">{cartCount}</p>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Cart items</p>
+              <p className="text-2xl font-extrabold text-sage-900">{cartCount}</p>
+              <p className="text-sm text-sage-500">Cart items</p>
             </div>
-
-            <div className="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600">
+            <div className="card p-5">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cream-200 text-accent-600">
                 <ShoppingBag className="h-5 w-5" />
               </div>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">
+              <p className="text-2xl font-extrabold text-sage-900">
                 {formatINR(cartTotal)}
               </p>
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Cart total</p>
+              <p className="text-sm text-sage-500">Cart total</p>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Current Cart</h3>
+          <div className="card p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-display font-bold text-sage-900">
+                Current Cart
+              </h3>
               <Link
                 to="/cart"
-                className="text-sm font-bold text-primary-600 hover:text-primary-700"
+                className="text-sm font-semibold text-sage-600 hover:text-sage-800 transition-colors"
               >
                 Open cart
               </Link>
             </div>
 
             {cartLoading ? (
-              <div className="flex justify-center py-10">
-                <Loader2 className="h-7 w-7 animate-spin text-primary-600" />
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-sage-400" />
               </div>
             ) : recentCartItems.length === 0 ? (
-              <div className="rounded-2xl bg-slate-50 dark:bg-slate-700/50 p-6 text-center">
-                <Package className="mx-auto mb-3 h-8 w-8 text-slate-400" />
-                <p className="font-semibold text-slate-900 dark:text-white">
+              <div className="bg-cream-50 rounded-2xl p-6 text-center">
+                <Package className="mx-auto mb-2 h-7 w-7 text-sage-300" />
+                <p className="font-semibold text-sage-800 text-sm">
                   Your cart is empty
                 </p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-sage-500 mt-1">
                   Add products to see them here.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {recentCartItems.map((item) => (
-                  <div key={item._id} className="flex items-center gap-4">
-                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-700">
+                  <div key={item._id} className="flex items-center gap-3">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-cream-50">
                       {item.image ? (
                         <img
                           src={item.image}
@@ -310,16 +293,16 @@ const Profile = () => {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <Package className="h-6 w-6 text-slate-400" />
+                          <Package className="h-5 w-5 text-sage-300" />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-bold text-slate-900 dark:text-white">
+                      <p className="truncate font-semibold text-sage-900 text-sm">
                         {item.name}
                       </p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Qty {item.cartQuantity} - {formatINR(item.price)}
+                      <p className="text-xs text-sage-500">
+                        Qty {item.cartQuantity} &middot; {formatINR(item.price)}
                       </p>
                     </div>
                   </div>
