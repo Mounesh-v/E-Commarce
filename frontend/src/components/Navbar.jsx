@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import useCart from "../hooks/useCart";
-import { useTheme } from "../hooks/useTheme";
 import {
   ShoppingCart,
   User,
@@ -12,12 +11,10 @@ import {
   Menu,
   X,
   Package,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 const navLinks = [
-  { to: "/ai-search", label: "AI Match", icon: ImageIcon },
+  { to: "/ai-search", label: "AI Product Search", icon: ImageIcon },
   { to: "/collections", label: "Collections", icon: Folder },
   { to: "/orders", label: "Orders", icon: Package },
 ];
@@ -25,7 +22,6 @@ const navLinks = [
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,14 +29,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Top bar */}
-      <div className="bg-sage-800 text-cream-100 text-xs py-1.5 hidden sm:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <span>Free shipping on orders above ₹999</span>
-          <span>Delivering across India</span>
-        </div>
-      </div>
-
       {/* Main header */}
       <header className="bg-sage-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,17 +50,32 @@ const Navbar = () => {
 
             {/* Right actions */}
             <div className="flex items-center gap-1 sm:gap-2 ml-auto">
-              <button
-                onClick={toggleTheme}
-                className="p-2.5 rounded-xl text-sage-300 hover:text-white hover:bg-sage-700 transition-colors hidden sm:flex"
-                title="Toggle theme"
+              <Link
+                to="/ai-search"
+                className="flex items-center gap-1.5 text-sm font-medium text-cream-200 hover:text-white bg-sage-700/60 hover:bg-sage-700 px-3 py-2 rounded-xl transition-colors h-9"
+                title="AI-based Image Search for product discovery"
               >
-                {theme === "light" ? (
-                  <Moon className="h-4.5 w-4.5" />
-                ) : (
-                  <Sun className="h-4.5 w-4.5" />
-                )}
-              </button>
+                <ImageIcon className="h-4 w-4 text-accent-400" />
+                <span className="hidden sm:inline whitespace-nowrap">
+                  AI Product Search
+                </span>
+              </Link>
+
+              <Link
+                to="/orders"
+                className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-cream-200 hover:text-white hover:bg-sage-700 px-3 py-2 rounded-xl transition-colors h-9"
+              >
+                <Package className="h-4 w-4" />
+                <span className="whitespace-nowrap">Orders</span>
+              </Link>
+
+              <Link
+                to="/collections"
+                className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-cream-200 hover:text-white hover:bg-sage-700 px-3 py-2 rounded-xl transition-colors h-9"
+              >
+                <Folder className="h-4 w-4" />
+                <span className="whitespace-nowrap">Collections</span>
+              </Link>
 
               {user?.role === "admin" && (
                 <Link

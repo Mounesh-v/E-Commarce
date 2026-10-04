@@ -21,12 +21,20 @@ const AISearch = () => {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const res = await api.post("/ai/image-search", formData);
+      const res = await api.post("/ai/image-search", formData, {
+        timeout: 120000,
+      });
       setResults(res.data.similarProducts || []);
       setSearched(true);
     } catch (err) {
       console.error("Error:", err);
-      toast.error("Image search failed. Please try again.");
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        (err.code === "ECONNABORTED"
+          ? "Search timed out. Please try again."
+          : "Image search failed. Please try again.");
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

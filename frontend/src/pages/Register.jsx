@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import useAuth from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, ArrowLeft } from "lucide-react";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -42,7 +42,19 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-cream-100">
+    <div className="min-h-screen flex bg-cream-100 relative">
+      {/* Back button */}
+      <button
+        type="button"
+        onClick={() =>
+          window.history.length > 1 ? navigate(-1) : navigate("/")
+        }
+        className="absolute top-5 left-5 z-20 flex items-center gap-2 bg-white/80 hover:bg-white text-sage-800 border border-sage-200 hover:border-sage-300 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-soft transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </button>
+
       {/* Left - Brand image */}
       <div className="hidden lg:flex lg:w-1/2 bg-sage-800 relative overflow-hidden items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-br from-sage-900/90 to-sage-800/80" />

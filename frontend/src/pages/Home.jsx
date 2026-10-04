@@ -6,12 +6,7 @@ import SearchBar from "../components/SerachBar";
 import {
   ChevronLeft,
   ChevronRight,
-  Truck,
-  ShieldCheck,
-  RotateCcw,
-  Zap,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 
 const Home = () => {
@@ -137,68 +132,6 @@ const Home = () => {
             />
           ))}
         </div>
-      </div>
-
-      {/* Trust indicators */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { icon: Truck, title: "Free Shipping", desc: "On orders above ₹999" },
-          { icon: ShieldCheck, title: "1 Year Warranty", desc: "On selected products" },
-          { icon: RotateCcw, title: "Easy Returns", desc: "7-day return policy" },
-        ].map((item) => (
-          <div
-            key={item.title}
-            className="flex items-center gap-4 bg-white rounded-2xl px-6 py-5 shadow-soft border border-sage-50"
-          >
-            <div className="w-11 h-11 rounded-xl bg-sage-50 flex items-center justify-center shrink-0">
-              <item.icon className="w-5 h-5 text-sage-700" />
-            </div>
-            <div>
-              <p className="font-semibold text-sage-900 text-sm">{item.title}</p>
-              <p className="text-sage-500 text-xs">{item.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Promotional cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link
-          to="/"
-          className="group relative bg-sage-800 rounded-3xl p-7 overflow-hidden text-white hover:shadow-elevated transition-all"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-accent-500/20 rounded-full -translate-y-10 translate-x-10" />
-          <Zap className="w-8 h-8 text-accent-400 mb-4" />
-          <h3 className="font-display font-bold text-lg mb-1">Big Savings</h3>
-          <p className="text-sage-300 text-sm mb-4">Up to 40% OFF</p>
-          <span className="text-sm font-semibold text-accent-400 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-            Shop Deals <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </Link>
-        <Link
-          to="/"
-          className="group relative bg-cream-100 rounded-3xl p-7 overflow-hidden text-sage-800 hover:shadow-elevated transition-all border border-cream-300"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-sage-200/50 rounded-full -translate-y-10 translate-x-10" />
-          <Sparkles className="w-8 h-8 text-sage-600 mb-4" />
-          <h3 className="font-display font-bold text-lg mb-1">New Arrivals</h3>
-          <p className="text-sage-500 text-sm mb-4">Latest Tech for Modern Life</p>
-          <span className="text-sm font-semibold text-sage-700 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-            Explore Now <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </Link>
-        <Link
-          to="/"
-          className="group relative bg-accent-500 rounded-3xl p-7 overflow-hidden text-white hover:shadow-elevated transition-all"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
-          <ShieldCheck className="w-8 h-8 text-white/80 mb-4" />
-          <h3 className="font-display font-bold text-lg mb-1">Perfect Gifts</h3>
-          <p className="text-white/70 text-sm mb-4">Smart Gifts for Every Occasion</p>
-          <span className="text-sm font-semibold text-white inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-            Explore Gifts <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </Link>
       </div>
 
       {/* Featured Products */}

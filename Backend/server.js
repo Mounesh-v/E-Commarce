@@ -60,9 +60,20 @@ app.use((req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
+
+  if (err.name === "MulterError") {
+    const status = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+    return res.status(status).json({
+      success: false,
+      error: err.code === "LIMIT_FILE_SIZE"
+        ? "Image must be smaller than 2MB"
+        : err.message,
+    });
+  }
+
   res
     .status(err.status || 500)
-    .json({ success: false, message: err.message || "Server Error" });
+    .json({ success: false, error: err.message || "Server Error", message: err.message || "Server Error" });
 });
 
 let memoryTimer;
