@@ -480,6 +480,10 @@ MONGO_SERVER_SELECTION_TIMEOUT_MS=10000
 # Authentication
 JWT_SECRET=your_super_secret_jwt_key_here
 
+# Admin login (set your own values — do not commit real credentials)
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change_me_strong_password
+
 # Payment
 RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
 RAZORPAY_KEY_SECRET=your_razorpay_secret

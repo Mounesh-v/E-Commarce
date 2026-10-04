@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../services/api";
 import { Search } from "lucide-react";
+import { SearchDropdownSkeleton } from "./Skeletons";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [products, setProducts] = useState([]);
   const [searched, setSearched] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -17,6 +20,7 @@ const SearchBar = () => {
     const trimmed = query.trim();
     if (!trimmed) return;
 
+    setSearching(true);
     try {
       const res = await api.get(
         `/product/search?query=${encodeURIComponent(trimmed)}`
@@ -27,6 +31,8 @@ const SearchBar = () => {
     } catch (err) {
       console.error("Search error:", err);
       toast.error("Search failed. Please try again.");
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -35,6 +41,7 @@ const SearchBar = () => {
 
     const delay = setTimeout(async () => {
       if (query.length > 1) {
+        setSuggesting(true);
         try {
           const res = await api.get(
             `/product/suggest?query=${encodeURIComponent(query)}`
@@ -43,9 +50,12 @@ const SearchBar = () => {
         } catch (err) {
           console.error("Suggest error:", err);
           if (!cancelled) setSuggestions([]);
+        } finally {
+          if (!cancelled) setSuggesting(false);
         }
       } else if (!cancelled) {
         setSuggestions([]);
+        setSuggesting(false);
       }
     }, 200);
 
@@ -74,7 +84,7 @@ const SearchBar = () => {
     setSearched(false);
   };
 
-  const showNoResults = searched && products.length === 0 && isFocused;
+  const showNoResults = searched && !searching && products.length === 0 && isFocused;
 
   return (
     <div className="relative w-full search-group">
@@ -91,6 +101,15 @@ const SearchBar = () => {
           className="w-full bg-white border border-sage-200 rounded-2xl pl-12 pr-4 py-4 text-sage-900 placeholder-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500 shadow-soft transition-all text-base"
         />
       </div>
+
+      {/* Loading skeleton for suggestions / search results */}
+      {isFocused &&
+        query.length > 1 &&
+        (searching || (suggesting && !searched)) &&
+        products.length === 0 &&
+        suggestions.length === 0 && (
+          <SearchDropdownSkeleton count={3} />
+        )}
 
       {/* Suggestions dropdown */}
       {query.length > 1 && isFocused && suggestions.length > 0 && (

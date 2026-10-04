@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import Collections from "./pages/Collections";
 import CancelPayment from "./pages/CancelPayment";
 import SuccessPayment from "./pages/SuccessPayment";
+import NotFound from "./pages/NotFound";
 import CreateProduct from "./admin/CreateProduct";
 
 function App() {
@@ -82,6 +83,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </div>

@@ -3,9 +3,11 @@ import api from "../services/api";
 import { formatINR } from "../utils/currency";
 import { Link } from "react-router-dom";
 import { Folder, Package, ArrowRight } from "lucide-react";
+import { CollectionsSkeleton } from "../components/Skeletons";
 
 const Collections = () => {
   const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -15,12 +17,19 @@ const Collections = () => {
       .then((res) => {
         if (!cancelled) setCollections(res.data.collections || []);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
     return () => {
       cancelled = true;
     };
   }, []);
+
+  if (loading) {
+    return <CollectionsSkeleton count={2} />;
+  }
 
   return (
     <div className="py-6 sm:py-8">

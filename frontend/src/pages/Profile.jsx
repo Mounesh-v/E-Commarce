@@ -15,6 +15,7 @@ import {
 import api from "../services/api";
 import useCart from "../hooks/useCart";
 import { formatINR } from "../utils/currency";
+import { ProfileSkeleton, SkeletonBlock } from "../components/Skeletons";
 
 const getStoredUser = () => {
   try {
@@ -119,11 +120,7 @@ const Profile = () => {
   };
 
   if (profileLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-sage-500" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -267,8 +264,16 @@ const Profile = () => {
             </div>
 
             {cartLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-sage-400" />
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <SkeletonBlock className="h-14 w-14 shrink-0 !rounded-xl" />
+                    <div className="flex-1 space-y-2">
+                      <SkeletonBlock className="h-4 w-2/3" />
+                      <SkeletonBlock className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : recentCartItems.length === 0 ? (
               <div className="bg-cream-50 rounded-2xl p-6 text-center">

@@ -5,7 +5,6 @@ import {
   ArrowRight,
   CheckCircle,
   Clock,
-  Loader2,
   Package,
   PackageCheck,
   Truck,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import { formatINR } from "../utils/currency";
+import { OrderListSkeleton } from "../components/Skeletons";
 
 const STATUS_STYLES = {
   pending: { icon: Clock, className: "bg-amber-50 text-amber-700" },
@@ -51,11 +51,7 @@ const Orders = () => {
   }, [fetchOrders]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-sage-500" />
-      </div>
-    );
+    return <OrderListSkeleton count={3} />;
   }
 
   if (orders.length === 0) {

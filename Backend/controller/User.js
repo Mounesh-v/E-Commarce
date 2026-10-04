@@ -2,6 +2,11 @@ import User from "../model/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const getAdminCredentials = () => ({
+  email: process.env.ADMIN_EMAIL || "",
+  password: process.env.ADMIN_PASSWORD || "",
+});
+
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -13,7 +18,9 @@ export const register = async (req, res) => {
       });
     }
 
-    if (email.toLowerCase() === "admin@gmail.com") {
+    const adminEmail = getAdminCredentials().email;
+
+    if (adminEmail && email.toLowerCase() === adminEmail.toLowerCase()) {
       return res.status(400).json({
         msg: "This email is reserved",
         success: false,
@@ -74,16 +81,35 @@ export const login = async (req, res) => {
       });
     }
 
-    // ADMIN LOGIN (fixed credentials) — backed by a real user document so the
-    // token carries an id and every auth-protected route works for the admin.
-    if (email === "admin@gmail.com" && password === "admin123") {
-      let adminUser = await User.findOne({ email: "admin@gmail.com" });
+    // ADMIN LOGIN — validated ONLY against env credentials (ADMIN_EMAIL /
+    // ADMIN_PASSWORD), never against the database. The db user document is
+    // used purely as an identity store so the token id works on protected routes.
+    const { email: adminEmail, password: adminPassword } = getAdminCredentials();
+    const isAdminEmail =
+      adminEmail && email.trim().toLowerCase() === adminEmail.trim().toLowerCase();
+
+    if (isAdminEmail) {
+      if (!adminPassword) {
+        return res.status(503).json({
+          msg: "Admin login is not configured (ADMIN_PASSWORD missing)",
+          success: false,
+        });
+      }
+
+      if (password !== adminPassword) {
+        return res.status(401).json({
+          msg: "Invalid credentials",
+          success: false,
+        });
+      }
+
+      let adminUser = await User.findOne({ email: adminEmail });
 
       if (!adminUser) {
         adminUser = await User.create({
           name: "Admin",
-          email: "admin@gmail.com",
-          password: await bcrypt.hash("admin123", 10),
+          email: adminEmail,
+          password: await bcrypt.hash(adminPassword, 10),
           role: "admin",
         });
       } else if (adminUser.role !== "admin") {
@@ -102,8 +128,8 @@ export const login = async (req, res) => {
         msg: "Admin Login Success",
         user: {
           _id: adminUser._id,
-          name: adminUser.name,
-          email: adminUser.email,
+          name: "Admin",
+          email: adminEmail,
           profilePic: adminUser.profilePic,
           role: "admin",
         },

@@ -35,7 +35,7 @@ export async function parseWithAi(query) {
 
   try {
     const completion = await groq.chat.completions.create({
-      model: process.env.GROQ_TEXT_MODEL || "llama-3.3-70b-versatile",
+      model: process.env.GROQ_TEXT_MODEL || "openai/gpt-oss-120b",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: String(query) },

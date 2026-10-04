@@ -15,9 +15,10 @@ import {
 } from "lucide-react";
 import { formatINR } from "../utils/currency";
 import CollectionModal from "../components/CollectionModal";
+import { CartListSkeleton } from "../components/Skeletons";
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, clearCart, cartTotal } =
+  const { cartItems, updateQuantity, removeFromCart, clearCart, cartTotal, loading: cartLoading } =
     useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,12 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
+
+    if (!window.Razorpay) {
+      toast.error("Razorpay failed to load. Check your connection and refresh.");
+      return;
+    }
+
     setLoading(true);
     try {
       const orderResponse = await api.post("/payment/create-order", {
@@ -46,7 +53,7 @@ const Cart = () => {
         order_id: orderId,
         handler: async function (response) {
           try {
-            await api.post("/payment/verify-payment", {
+            const verifyRes = await api.post("/payment/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -59,7 +66,14 @@ const Cart = () => {
               })),
               totalPrice: cartTotal,
             });
-            toast.success("Payment successful!");
+            if (verifyRes.data.orderCreated === false) {
+              toast.error(
+                "Payment received, but the order could not be saved. Please contact support.",
+                { duration: 6000 }
+              );
+            } else {
+              toast.success("Payment successful!");
+            }
             clearCart();
             navigate("/success");
           } catch {
@@ -89,6 +103,10 @@ const Cart = () => {
       setLoading(false);
     }
   };
+
+  if (cartLoading && cartItems.length === 0) {
+    return <CartListSkeleton count={2} />;
+  }
 
   if (cartItems.length === 0) {
     return (

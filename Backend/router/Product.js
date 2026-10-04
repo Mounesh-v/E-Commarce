@@ -63,11 +63,7 @@ product.post("/generate-desc-combined", uploadMemory.single("image"), async (req
     }
 
     const caption = req.file?.buffer ? await getImageCaption(req.file.buffer) : null;
-    const subject = caption
-      ? `${name} by ${brand}. Visual description: ${caption}`
-      : `${name} by ${brand}`;
-
-    const desc = await generateDesc(subject, "");
+    const desc = await generateDesc(name, brand, caption || "");
     return res.json({ desc, caption });
   } catch (err) {
     console.error("Combined Desc Error:", err);

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import {
-  Loader2,
   ArrowLeft,
   ShoppingCart,
   ShieldCheck,
@@ -15,6 +14,7 @@ import {
 import useCart from "../hooks/useCart";
 import { formatINR } from "../utils/currency";
 import CollectionModal from "../components/CollectionModal";
+import { ProductDetailsSkeleton } from "../components/Skeletons";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -49,11 +49,7 @@ const ProductDetails = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-[60vh]">
-        <Loader2 className="h-8 w-8 text-sage-500 animate-spin" />
-      </div>
-    );
+    return <ProductDetailsSkeleton />;
   }
 
   if (!product) {

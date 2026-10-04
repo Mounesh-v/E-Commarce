@@ -32,7 +32,7 @@ const formatCartItems = (items) => {
 };
 
 export default function useCart() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
 
   // Stable unique id per hook instance (used to ignore self-originated events).
   const instanceIdRef = useRef(Symbol("cart-instance"));
